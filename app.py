@@ -6,9 +6,7 @@ from dotenv import load_dotenv
 # New location for text splitter
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 # Core LangChain components (Make sure you ran: pip install langchain)
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
-from langchain.docstore.document import Document
+
 # Google Gemini & FAISS
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
