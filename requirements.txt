@@ -1,0 +1,9 @@
+flask
+python-dotenv
+tiktoken
+faiss-cpu
+langchain
+langchain-community
+langchain-core
+langchain-text-splitters
+langchain-google-genai
