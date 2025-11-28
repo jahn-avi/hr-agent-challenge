@@ -5,30 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR Assistant Agent</title>
     <style>
+        /* Modernized Color Palette & Design */
         :root {
-            --primary-color: #4a90e2;
-            --bg-color: #f4f7f6;
-            --chat-bg: #ffffff;
-            --user-msg-bg: #4a90e2;
-            --bot-msg-bg: #e9ecef;
+            --primary-color: #4CAF50; /* A clean, approachable green */
+            --primary-dark: #388E3C;
+            --bg-color: #f0f4f9; /* Light gray-blue background */
+            --chat-bg: #eef2f7; /* Container background */
+            --user-msg-bg: #5c7cfa; /* Vibrant blue for user messages */
+            --bot-msg-bg: #ffffff; /* White for bot messages */
+            --shadow-subtle: 0 4px 12px rgba(0,0,0,0.08);
+            --border-radius-large: 18px;
+            --border-radius-small: 8px;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg-color);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
 
         .chat-container {
-            width: 400px;
-            height: 600px;
+            /* UPDATED SIZE FOR A BIGGER CHAT BOX */
+            width: 500px; 
+            height: 700px; 
             background-color: var(--chat-bg);
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius-large);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -37,10 +44,20 @@
         .chat-header {
             background-color: var(--primary-color);
             color: white;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-top-left-radius: var(--border-radius-large);
+            border-top-right-radius: var(--border-radius-large);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chat-header span {
+            margin-left: 10px;
+            font-size: 1.5rem;
         }
 
         .chat-messages {
@@ -49,71 +66,101 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            background-color: var(--chat-bg); /* Match container bg */
         }
+        
+        /* Scrollbar styling for a cleaner look */
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
 
         .message {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 0.9rem;
+            max-width: 85%;
+            padding: 12px 18px;
+            border-radius: var(--border-radius-large);
+            font-size: 1rem;
             line-height: 1.4;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .user-message {
             background-color: var(--user-msg-bg);
             color: white;
             align-self: flex-end;
-            border-bottom-right-radius: 2px;
+            border-bottom-right-radius: var(--border-radius-small);
         }
 
         .bot-message {
             background-color: var(--bot-msg-bg);
             color: #333;
             align-self: flex-start;
-            border-bottom-left-radius: 2px;
+            border-bottom-left-radius: var(--border-radius-small);
+        }
+        
+        .initial-bot-message {
+            background-color: #f7f9fc; /* Slightly different background for greeting */
+            box-shadow: none;
+            text-align: center;
+            max-width: 100%;
+            margin-top: 5px;
+            font-style: italic;
+            color: #555;
+            padding: 15px;
         }
 
         .input-area {
-            padding: 20px;
-            border-top: 1px solid #eee;
+            padding: 15px 20px;
+            border-top: 1px solid #ddd;
             display: flex;
+            align-items: center;
             gap: 10px;
+            background-color: white;
         }
 
         input[type="text"] {
             flex: 1;
-            padding: 12px;
+            padding: 12px 20px;
             border: 1px solid #ddd;
             border-radius: 25px;
             outline: none;
-            transition: border-color 0.3s;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
 
         input[type="text"]:focus {
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
         }
 
+        /* Styling for the Send button as a circular icon */
         button {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             cursor: pointer;
+            font-size: 1.2rem;
             font-weight: bold;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
         button:hover {
-            background-color: #357abd;
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
         }
         
         .typing {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #888;
-            margin-left: 10px;
+            padding: 0 20px 10px 25px;
             display: none;
+            font-style: italic;
         }
     </style>
 </head>
@@ -121,17 +168,17 @@
 
     <div class="chat-container">
         <div class="chat-header">
-            HR Assistant 🤖
+            HR Policy Assistant <span role="img" aria-label="robot">🤖</span>
         </div>
         <div class="chat-messages" id="chat-box">
-            <div class="message bot-message">
+            <div class="message bot-message initial-bot-message">
                 Hello! I am your HR Assistant. Ask me about leaves, insurance, or office policies.
             </div>
         </div>
         <div class="typing" id="typing-indicator">Agent is typing...</div>
         <div class="input-area">
             <input type="text" id="user-input" placeholder="Type your question..." onkeypress="handleEnter(event)">
-            <button onclick="sendMessage()">Send</button>
+            <button onclick="sendMessage()">&#x27A4;</button> 
         </div>
     </div>
 
@@ -150,6 +197,7 @@
             
             // Show typing indicator
             typingIndicator.style.display = 'block';
+            chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
                 const response = await fetch('/ask', {
@@ -174,7 +222,15 @@
             const chatBox = document.getElementById('chat-box');
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message', className);
-            msgDiv.textContent = text;
+            
+            // Remove the initial greeting class once chat starts
+            if (className === 'bot-message' && msgDiv.previousElementSibling && msgDiv.previousElementSibling.classList.contains('initial-bot-message')) {
+                msgDiv.previousElementSibling.classList.remove('initial-bot-message');
+            }
+            
+            // Basic markdown support for newlines from the model output
+            msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
         }

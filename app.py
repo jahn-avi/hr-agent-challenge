@@ -1,27 +1,16 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-# --- UPDATED IMPORTS TO FIX ERRORS ---
-# New location for text splitter
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-# Core LangChain components (Make sure you ran: pip install langchain)
-
-# Google Gemini & FAISS
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
-from langchain_community.vectorstores import FAISS
-
-# --- 1. LOAD ENVIRONMENT VARIABLES ---
+# Load Env
 load_dotenv()
-
-# Verify Key exists
 if not os.getenv("GOOGLE_API_KEY"):
-    print("CRITICAL ERROR: GOOGLE_API_KEY not found. Please check your .env file.")
+    print("CRITICAL ERROR: GOOGLE_API_KEY not found in .env file.")
 
 app = Flask(__name__)
 
-# --- 2. CREATE DUMMY HR DATA (The Knowledge Base) ---
-# [cite_start]This matches the HR Assistant Agent requirement [cite: 13]
+# --- THE HR DATA (Context) ---
 hr_policy_text = """
 *** COMPANY HR POLICY MANUAL ***
 
@@ -52,47 +41,9 @@ hr_policy_text = """
    - Notice period after confirmation is 60 days.
 """
 
-# --- 3. INITIALIZE RAG PIPELINE ---
-print("Initializing Vector DB...")
-
-try:
-    # Split text into chunks
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    docs = [Document(page_content=x) for x in text_splitter.split_text(hr_policy_text)]
-
-    # Create Embeddings & Vector DB (FAISS)
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    vector_db = FAISS.from_documents(docs, embeddings)
-
-    # Setup Gemini LLM
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.3)
-
-    # Create the QA Chain
-    prompt_template = """
-    You are a helpful HR Assistant. Use the following context from the company policy to answer the employee's question.
-    If the answer is not in the context, say "I'm sorry, I cannot find that specific information in the HR policy."
-
-    Context: {context}
-
-    Question: {question}
-
-    Helpful Answer:
-    """
-    PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
-
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=vector_db.as_retriever(search_kwargs={"k": 2}),
-        chain_type_kwargs={"prompt": PROMPT}
-    )
-    print("Agent Ready!")
-
-except Exception as e:
-    print(f"Error initializing AI: {e}")
-    print("Make sure your API Key is correct in .env and you have internet access.")
-
-# --- 4. FLASK ROUTES ---
+# --- SETUP THE AI ---
+# FINAL CHANGE: Using the most compatible and modern model alias.
+chat_model = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
 @app.route('/')
 def home():
@@ -106,12 +57,27 @@ def ask():
         return jsonify({"response": "Please type a question."})
 
     try:
-        # Run the LangChain agent
-        response = qa_chain.run(user_message)
-        return jsonify({"response": response})
+        # Create a simple prompt with the policy + user question
+        prompt = f"""
+        You are a helpful HR Assistant. Use the policy below to answer the question.
+        
+        --- HR POLICY ---
+        {hr_policy_text}
+        -----------------
+        
+        User Question: {user_message}
+        
+        Answer:
+        """
+        
+        # Send to Gemini
+        response = chat_model.invoke(prompt)
+        return jsonify({"response": response.content})
+
     except Exception as e:
-        print(f"Error during query: {e}")
-        return jsonify({"response": "Sorry, I encountered an error processing your request."})
+        print(f"ERROR: {e}")
+        return jsonify({"response": f"Sorry, I crashed: {str(e)}"})
 
 if __name__ == '__main__':
+    print("Starting Simple HR Agent (Gemini 2.5 Flash)...")
     app.run(debug=True, port=5000)
