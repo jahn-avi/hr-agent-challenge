@@ -39,6 +39,12 @@ hr_policy_text = """
    - Standard probation period is 3 months. 
    - Notice period during probation is 15 days.
    - Notice period after confirmation is 60 days.
+
+6. PAYROLL & COMPENSATION
+   - Salary Processing: Salaries are disbursed on the last working day of the month.
+   - Salary Structure: Full salary breakup (Basic, HRA, Allowances) is detailed in the employee's offer letter and accessible on the HR portal.
+   - Provident Fund (PF): The company deducts 12% of Basic Salary as the employee's PF contribution, and the company contributes an equal 12%.
+   - Income Tax (TDS/Withholding): Tax is deducted as per prevailing tax laws and the employee's submitted declaration (e.g., investment proofs). Higher tax deductions in a month usually indicate either a higher monthly income, a change in tax slab, or an adjustment for less deduction in previous months. For a specific query, employees should check their salary slip or contact the Payroll team via the dedicated support channel.
 """
 
 # --- SETUP THE AI ---
